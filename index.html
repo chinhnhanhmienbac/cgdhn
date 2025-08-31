@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHƯƠNG TRÌNH LẬP PHIẾU CÂN TRẢ GAS THỪA</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none; /* Ẩn toàn bộ nội dung ban đầu */
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        header img {
+            margin-right: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #2ecc71;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        .input-section, .list-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            flex-grow: 1;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button.delete-btn {
+            background-color: #e74c3c;
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        button.edit-slip-btn {
+            background-color: #3498db;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        
+        button.export-slips-btn {
+            background-color: #f39c12;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        
+        button.print-slip-btn {
+            background-color: #2ecc71;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        button.delete-all-btn {
+            background-color: #e74c3c;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        
+        button.order-btn {
+            background-color: #2ecc71;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        button.print-btn {
+            background-color: #f39c12;
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        button.edit-btn {
+            background-color: #3498db;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        button.statistics-btn {
+            background-color: #9b59b6;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        
+        button.weighing-btn {
+            background-color: #2ecc71;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        
+        button.view-slips-btn {
+            background-color: #f39c12;
+        }
+
+        button.delete-btn:hover, button.delete-all-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        button.print-slip-btn:hover {
+            background-color: #27ae60;
+        }
+
+        button.export-slips-btn:hover {
+            background-color: #e67e22;
+        }
+
+        button.order-btn:hover {
+            background-color: #27ae60;
+        }
+
+        button.print-btn:hover, button.view-slips-btn:hover {
+            background-color: #e67e22;
+        }
+
+        button.edit-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        button.edit-slip-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        button.statistics-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        button.weighing-btn:hover {
+            background-color: #27ae60;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .list-header-slips {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .list-header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .statistics-section {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .statistics-section .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .statistics-section .form-group label {
+            min-width: 150px;
+        }
+
+        .statistics-section .form-group input {
+            flex-grow: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        
+        td:last-child {
+            text-align: center;
+        }
+        
+        td .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        #weighingTable th:nth-child(1),
+        #weighingTable th:nth-child(2),
+        #weighingTable td:nth-child(1),
+        #weighingTable td:nth-child(2) {
+            width: 150px; 
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .pagination-controls button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        /* Styles for the new weighing slip section */
+        #weighing-slip-view .weighing-slip-content {
+            display: flex;
+            gap: 20px;
+        }
+
+        #weighing-slip-view .left-panel {
+            flex: 1;
+        }
+
+        #weighing-slip-view .right-panel {
+            flex: 1;
+        }
+
+        #weighing-slip-view table {
+            width: 100%;
+        }
+
+        #weighing-slip-view table input {
+            width: 100%;
+            border: none;
+            padding: 8px;
+            box-sizing: border-box;
+            background-color: transparent;
+        }
+        
+        #weighing-slip-view table td {
+            padding: 0;
+        }
+        
+        #weighing-slip-view table td:last-child {
+            text-align: right;
+            padding-right: 12px;
+        }
+        
+        #weighing-slip-view .summary-fields input {
+            font-weight: bold;
+            background-color: #ecf0f1;
+        }
+        
+        /* New class for error values */
+        .error-value {
+            color: red;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        /* Styles for print page */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 12pt;
+            }
+            .print-container {
+                width: 21cm; /* A4 width */
+                min-height: 29.7cm; /* A4 height */
+                margin: 0 auto;
+                padding: 1cm;
+                box-sizing: border-box;
+            }
+            .print-header {
+                text-align: center;
+                font-weight: bold;
+                font-size: 14pt;
+                margin-bottom: 20px;
+            }
+            .company-info {
+                text-align: center;
+                line-height: 1.2;
+                margin-bottom: 20px;
+            }
+            .print-info {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+            .print-info p {
+                margin: 5px 0;
+                width: 48%;
+                text-align: left;
+            }
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                font-size: 10pt;
+                table-layout: fixed;
+            }
+            .print-table th, .print-table td {
+                border: 1px solid #000;
+                padding: 5px;
+                text-align: center;
+                word-wrap: break-word;
+            }
+            .print-table th {
+                background-color: #f2f2f2;
+            }
+            .print-signatures {
+                display: flex;
+                justify-content: space-around;
+                text-align: center;
+                margin-top: 10px; /* Đã điều chỉnh */
+            }
+            .print-signatures div {
+                flex-basis: 45%;
+            }
+        
+            /* New print-specific styles for logo and signatures */
+            .print-header-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+            }
+            .print-logo {
+                position: absolute;
+                left: 0;
+                top: -1cm; /* Nâng logo lên một hàng chữ */
+                width: 1.5cm;
+                height: 1.5cm;
+                margin-left: 1cm;
+            }
+            .company-info-block {
+                text-align: center;
+                margin-top: -0.5cm;
+            }
+            .company-info {
+                text-align: center;
+                line-height: 1.2;
+                margin: 0;
+            }
+            .branch-info {
+                margin-bottom: 0.5cm;
+            }
+            .print-title {
+                text-align: center;
+                font-weight: bold;
+                font-size: 14pt;
+                margin-bottom: 1cm;
+            }
+            
+            /* Định dạng chữ nghiêng cho cột TT */
+            .print-table .tt-column {
+                font-style: italic;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-content">
+        <header>
+            <img src="https://pvgaslpg.com.vn/uploads/LPG%20xanh%20animation.gif" alt="Logo PV Gas LPG" width="150" height="150">
+            <h1>CHƯƠNG TRÌNH LẬP PHIẾU CÂN TRẢ GAS THỪA</h1>
+        </header>
+
+        <div id="customer-view">
+            <section class="input-section">
+                <h2>Thêm khách hàng vào dữ liệu</h2>
+                <div class="form-group">
+                    <label for="customerId">Mã số khách hàng:</label>
+                    <input type="text" id="customerId" placeholder="Mã số">
+                </div>
+                <div class="form-group">
+                    <label for="customerName">Tên khách hàng:</label>
+                    <input type="text" id="customerName" placeholder="Tên khách hàng">
+                </div>
+                <div class="input-controls">
+                    <button id="saveBtn">Lưu khách hàng</button>
+                    <button id="viewSlipsBtn" class="view-slips-btn">Xem/Xóa phiếu cân</button>
+                </div>
+            </section>
+
+            <section class="list-section">
+                <div class="list-header">
+                    <h2>Danh sách khách hàng</h2>
+                    <div class="list-header-buttons">
+                        <button id="importBtn">Nhập từ Excel</button>
+                        <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
+                        <button id="exportBtn">Xuất ra Excel</button>
+                        <button id="deleteAllCustomersBtn" class="delete-all-btn">Xoá toàn bộ KH</button>
+                    </div>
+                </div>
+                
+                <table id="customerTable">
+                    <thead>
+                        <tr>
+                            <th>Thứ tự</th>
+                            <th>Mã số</th>
+                            <th>Tên khách hàng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+        </div>
+
+        <div class="hidden" id="weighing-slip-view">
+            <header>
+                <h2>PHIẾU CÂN</h2>
+            </header>
+            <div class="weighing-slip-content">
+                <div class="left-panel">
+                    <section class="input-section">
+                        <h2>Thông tin phiếu</h2>
+                        <div class="form-group">
+                            <label for="slipCustomerName">Tên khách hàng:</label>
+                            <input type="text" id="slipCustomerName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="slipDate">Ngày tháng:</label>
+                            <input type="date" id="slipDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="slipWarehouse">Kho hàng:</label>
+                            <input type="text" id="slipWarehouse">
+                        </div>
+                        <div class="form-group">
+                            <label for="slipTransporter">Người vận chuyển:</label>
+                            <input type="text" id="slipTransporter">
+                        </div>
+                    </section>
+                    <section class="summary-fields">
+                        <h2>Tổng kết</h2>
+                        <div class="form-group">
+                            <label for="totalRows">Tổng số chai đã cân:</label>
+                            <input type="number" id="totalRows" readonly value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalColumn3">Tổng khối lượng gas thừa đã cân:</label>
+                            <input type="number" id="totalColumn3" readonly value="0">
+                        </div>
+                    </section>
+                    <button id="saveWeighingSlipBtn">Lưu phiếu cân</button>
+                    <button id="backToCustomersBtn">Quay lại</button>
+                </div>
+
+                <div class="right-panel">
+                    <section>
+                        <h2>BẢNG CÂN BÌNH</h2>
+                        <table id="weighingTable">
+                            <thead>
+                                <tr>
+                                    <th>Khối lượng vỏ</th>
+                                    <th>Khối lượng cân</th>
+                                    <th>Gas thừa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hidden" id="weighing-slips-list-view">
+            <div class="list-header-slips">
+                <h2>Danh sách phiếu cân</h2>
+                <div class="list-header-buttons">
+                    <button id="exportSlipsBtn" class="export-slips-btn">Xuất DS phiếu ra Excel</button>
+                    <button id="deleteAllSlipsBtn" class="delete-all-btn">Xóa toàn bộ phiếu</button>
+                </div>
+            </div>
+            <button id="backFromSlipsBtn">Quay lại</button>
+            <table id="weighingSlipsTable">
+                <thead>
+                    <tr>
+                        <th>Số thứ tự phiếu</th>
+                        <th>Ngày lập phiếu</th>
+                        <th>Tên khách hàng</th>
+                        <th>Kho hàng</th>
+                        <th>Người vận chuyển</th>
+                        <th>Tổng số chai</th>
+                        <th>Tổng KL gas thừa</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+                </table>
+        </div>
+    </div>
+    
+    <!-- Cửa sổ in phiếu cân -->
+    <div class="hidden" id="print-slip-container">
+        <!-- Nội dung sẽ được tạo động tại đây -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, remove, get, child, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        
+        // --- CHỨC NĂNG YÊU CẦU MẬT KHẨU ---
+        const correctPassword = "can";
+        const mainContent = document.getElementById('main-content');
+        
+        function askForPassword() {
+            let password = prompt("Vui lòng nhập mật khẩu để truy cập:");
+            if (password === correctPassword) {
+                mainContent.style.display = 'block'; // Hiển thị nội dung
+            } else {
+                alert("Mật khẩu không đúng. Vui lòng thử lại.");
+                askForPassword(); // Yêu cầu nhập lại
+            }
+        }
+        
+        window.onload = askForPassword;
+        // --- KẾT THÚC CHỨC NĂNG YÊU CẦU MẬT KHẨU ---
+
+        // Cấu hình Firebase của bạn
+        const firebaseConfig = {
+          apiKey: "AIzaSyBrwf_Z8PaIZ6mEgoytdYMHeHXx1e4bDJU",
+          authDomain: "cangasdu.firebaseapp.com",
+          databaseURL: "https://cangasdu-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "cangasdu",
+          storageBucket: "cangasdu.firebasestorage.app",
+          messagingSenderId: "779781631875",
+          appId: "1:779781631875:web:18ac9254d83f286a5a90b6",
+          measurementId: "G-LZMP79CHXW"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Lấy các phần tử DOM cho phần khách hàng
+        const customerView = document.getElementById('customer-view');
+        const customerIdInput = document.getElementById('customerId');
+        const customerNameInput = document.getElementById('customerName');
+        const saveBtn = document.getElementById('saveBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const excelFile = document.getElementById('excelFile');
+        const deleteAllCustomersBtn = document.getElementById('deleteAllCustomersBtn');
+        const customerTableBody = document.querySelector('#customerTable tbody');
+        const viewSlipsBtn = document.getElementById('viewSlipsBtn');
+        
+        let customerData = [];
+
+        // Lấy các phần tử DOM cho phần phiếu cân mới
+        const weighingSlipView = document.getElementById('weighing-slip-view');
+        const slipCustomerNameInput = document.getElementById('slipCustomerName');
+        const slipDateInput = document.getElementById('slipDate');
+        const slipWarehouseInput = document.getElementById('slipWarehouse');
+        const slipTransporterInput = document.getElementById('slipTransporter');
+        const weighingTableBody = document.querySelector('#weighingTable tbody');
+        const totalRowsInput = document.getElementById('totalRows');
+        const totalColumn3Input = document.getElementById('totalColumn3');
+        const saveWeighingSlipBtn = document.getElementById('saveWeighingSlipBtn');
+        const backToCustomersBtn = document.getElementById('backToCustomersBtn');
+        
+        // Lấy các phần tử DOM cho phần danh sách phiếu cân
+        const weighingSlipsListView = document.getElementById('weighing-slips-list-view');
+        const weighingSlipsTableBody = document.querySelector('#weighingSlipsTable tbody');
+        const backFromSlipsBtn = document.getElementById('backFromSlipsBtn');
+        const deleteAllSlipsBtn = document.getElementById('deleteAllSlipsBtn');
+        const exportSlipsBtn = document.getElementById('exportSlipsBtn');
+
+        let currentSlipId = null;
+        let weighingSlipsData = [];
+
+        // Tạo bảng nhập liệu
+        const NUM_ROWS = 100;
+        function createWeighingTable(dataRows = []) {
+            weighingTableBody.innerHTML = '';
+            for (let i = 0; i < NUM_ROWS; i++) {
+                const row = weighingTableBody.insertRow();
+                const col1Value = dataRows[i] ? dataRows[i].col1 || '' : '';
+                const col2Value = dataRows[i] ? dataRows[i].col2 || '' : '';
+                const result = dataRows[i] ? (parseFloat(dataRows[i].col2) || 0) - (parseFloat(dataRows[i].col1) || 0) : 0;
+                row.innerHTML = `
+                    <td><input type="number" class="col1" data-row="${i}" value="${col1Value}"></td>
+                    <td><input type="number" class="col2" data-row="${i}" value="${col2Value}"></td>
+                    <td><span class="result">${result.toFixed(2)}</span></td>
+                `;
+            }
+        }
+        createWeighingTable();
+
+        // Cập nhật tổng số dòng và tổng giá trị cột 3
+        function updateCalculations() {
+            let totalRows = 0;
+            let totalColumn3 = 0;
+            const rows = weighingTableBody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const col1Input = row.querySelector('.col1');
+                const col2Input = row.querySelector('.col2');
+                const resultSpan = row.querySelector('.result');
+                
+                const val1 = parseFloat(col1Input.value) || 0;
+                const val2 = parseFloat(col2Input.value) || 0;
+                
+                // Check for non-empty rows
+                if (col1Input.value.trim() !== '' || col2Input.value.trim() !== '') {
+                    totalRows++;
+                }
+
+                const result = val2 - val1;
+                resultSpan.textContent = isNaN(result) ? '0' : result.toFixed(2);
+                totalColumn3 += isNaN(result) ? 0 : result;
+                
+                // Conditional coloring for col1
+                if (col1Input.value.trim() !== '' && (val1 < 33 || val1 > 37)) {
+                    col1Input.classList.add('error-value');
+                } else {
+                    col1Input.classList.remove('error-value');
+                }
+                
+                // Conditional coloring for result
+                if (result < 0 || result > 45) {
+                    resultSpan.classList.add('error-value');
+                } else {
+                    resultSpan.classList.remove('error-value');
+                }
+            });
+            
+            totalRowsInput.value = totalRows;
+            totalColumn3Input.value = totalColumn3.toFixed(2);
+        }
+
+        // Xử lý sự kiện nhập liệu và phím tắt
+        weighingTableBody.addEventListener('input', updateCalculations);
+        weighingTableBody.addEventListener('keydown', (e) => {
+            const currentInput = e.target;
+            // Chỉ xử lý các phím mũi tên khi đang ở trong ô nhập liệu
+            if (currentInput.tagName.toLowerCase() === 'input') {
+                const currentRow = parseInt(currentInput.dataset.row);
+                const isCol1 = currentInput.classList.contains('col1');
+                let nextInput = null;
+
+                switch (e.key) {
+                    case 'Enter':
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (isCol1) {
+                            nextInput = weighingTableBody.querySelector(`input.col1[data-row="${currentRow + 1}"]`);
+                        } else {
+                            nextInput = weighingTableBody.querySelector(`input.col2[data-row="${currentRow + 1}"]`);
+                        }
+                        if (nextInput) {
+                            nextInput.focus();
+                        } else {
+                            weighingTableBody.querySelector(`input.col${isCol1 ? '1' : '2'}[data-row="0"]`).focus();
+                        }
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (currentRow > 0) {
+                            if (isCol1) {
+                                nextInput = weighingTableBody.querySelector(`input.col1[data-row="${currentRow - 1}"]`);
+                            } else {
+                                nextInput = weighingTableBody.querySelector(`input.col2[data-row="${currentRow - 1}"]`);
+                            }
+                        }
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                        break;
+                    case 'ArrowRight':
+                        if (isCol1) {
+                            e.preventDefault();
+                            nextInput = weighingTableBody.querySelector(`input.col2[data-row="${currentRow}"]`);
+                        }
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        if (!isCol1) {
+                            e.preventDefault();
+                            nextInput = weighingTableBody.querySelector(`input.col1[data-row="${currentRow}"]`);
+                        }
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                        break;
+                }
+            }
+        });
+
+        // Bổ sung: Khi focus vào ô input, tự động bôi đen toàn bộ nội dung
+        weighingTableBody.addEventListener('focusin', (e) => {
+            if (e.target.tagName.toLowerCase() === 'input') {
+                e.target.select();
+            }
+        });
+
+
+        // --- Xử lý chức năng khách hàng ---
+        saveBtn.addEventListener('click', async () => {
+            const customerId = customerIdInput.value.trim();
+            const customerName = customerNameInput.value.trim();
+
+            if (customerId === '' || customerName === '') {
+                alert('Vui lòng nhập đầy đủ Mã số và Tên khách hàng.');
+                return;
+            }
+
+            const safeCustomerId = customerId.replace(/[.#$[\]]/g, '');
+
+            if (safeCustomerId === '') {
+                alert('Mã số khách hàng không hợp lệ. Vui lòng không sử dụng các ký tự đặc biệt như ., #, $, [, ].');
+                return;
+            }
+
+            const dbRef = ref(database);
+            try {
+                const snapshot = await get(child(dbRef, `customers/${safeCustomerId}`));
+                if (snapshot.exists()) {
+                    alert('Mã khách hàng đã tồn tại. Vui lòng nhập mã khác.');
+                    return;
+                }
+            } catch (error) {
+                alert('Lỗi khi kiểm tra dữ liệu: ' + error.message);
+                return;
+            }
+
+            set(ref(database, 'customers/' + safeCustomerId), {
+                id: safeCustomerId,
+                originalId: customerId,
+                name: customerName
+            })
+            .then(() => {
+                alert('Lưu khách hàng thành công!');
+                customerIdInput.value = '';
+                customerNameInput.value = '';
+            })
+            .catch((error) => {
+                alert('Đã xảy ra lỗi khi lưu khách hàng: ' + error.message);
+            });
+        });
+
+        const deleteCustomer = (customerIdKey) => {
+            const password = prompt('Vui lòng nhập mật khẩu để xóa:');
+            if (password === '54321') {
+                remove(ref(database, 'customers/' + customerIdKey))
+                .then(() => {
+                    alert('Đã xóa khách hàng thành công!');
+                })
+                .catch((error) => {
+                    alert('Đã xảy ra lỗi khi xóa khách hàng: ' + error.message);
+                });
+            } else {
+                alert('Mật khẩu không đúng. Vui lòng thử lại.');
+            }
+        };
+
+        deleteAllCustomersBtn.addEventListener('click', () => {
+            const password = prompt('CẢNH BÁO: Thao tác này sẽ xóa toàn bộ danh sách khách hàng. Vui lòng nhập mật khẩu để xác nhận:');
+            if (password === '54321') {
+                remove(ref(database, 'customers'))
+                .then(() => {
+                    alert('Đã xóa toàn bộ danh sách khách hàng thành công!');
+                })
+                .catch((error) => {
+                    alert('Đã xảy ra lỗi khi xóa toàn bộ danh sách: ' + error.message);
+                });
+            } else {
+                alert('Mật khẩu không đúng. Vui lòng thử lại.');
+            }
+        });
+
+        onValue(ref(database, 'customers'), (snapshot) => {
+            const data = snapshot.val();
+            customerData = [];
+            customerTableBody.innerHTML = '';
+            let index = 1;
+
+            if (data) {
+                for (const key in data) {
+                    const customer = data[key];
+                    const displayedId = customer.originalId || customer.id;
+
+                    customerData.push({
+                        'Thứ tự': index,
+                        'Mã số': displayedId,
+                        'Tên khách hàng': customer.name
+                    });
+
+                    const row = customerTableBody.insertRow();
+                    row.insertCell(0).textContent = index++;
+                    row.insertCell(1).textContent = displayedId;
+                    row.insertCell(2).textContent = customer.name;
+                    
+                    const actionsCell = row.insertCell(3);
+                    actionsCell.classList.add('action-buttons');
+                    
+                    const weighingBtn = document.createElement('button');
+                    weighingBtn.textContent = 'Lập phiếu cân';
+                    weighingBtn.className = 'weighing-btn';
+                    weighingBtn.addEventListener('click', () => {
+                        openWeighingSlip(customer.name);
+                    });
+                    actionsCell.appendChild(weighingBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Xoá';
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.addEventListener('click', () => {
+                        deleteCustomer(key);
+                    });
+                    actionsCell.appendChild(deleteBtn);
+                }
+            }
+        });
+
+        importBtn.addEventListener('click', () => { excelFile.click(); });
+        excelFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const importedData = XLSX.utils.sheet_to_json(worksheet);
+
+                if (importedData.length > 0) {
+                    const updates = {};
+                    importedData.forEach(row => {
+                        const originalId = row['Mã số'];
+                        const customerName = row['Tên khách hàng'];
+                        if (originalId && customerName) {
+                            const safeCustomerId = String(originalId).trim().replace(/[.#$[\]]/g, '');
+                            if (safeCustomerId) {
+                                updates['/customers/' + safeCustomerId] = {
+                                    id: safeCustomerId,
+                                    originalId: String(originalId).trim(),
+                                    name: customerName
+                                };
+                            }
+                        }
+                    });
+                    update(ref(database), updates)
+                        .then(() => { alert(`Đã nhập thành công ${Object.keys(updates).length} khách hàng từ file Excel!`); })
+                        .catch(error => { alert("Đã xảy ra lỗi khi nhập dữ liệu: " + error.message); });
+                } else {
+                    alert('File Excel không có dữ liệu hoặc cấu trúc không đúng.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        exportBtn.addEventListener('click', () => {
+            if (customerData.length === 0) {
+                alert('Không có dữ liệu để xuất ra file Excel.');
+                return;
+            }
+            const worksheet = XLSX.utils.json_to_sheet(customerData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachKhachHang");
+            XLSX.writeFile(workbook, "danh-sach-khach-hang.xlsx");
+        });
+
+        // --- Chức năng Phiếu cân ---
+        function openWeighingSlip(customerName) {
+            currentSlipId = null; // Đảm bảo đây là phiếu mới
+            customerView.classList.add('hidden');
+            weighingSlipView.classList.remove('hidden');
+            
+            slipCustomerNameInput.value = customerName;
+            slipDateInput.valueAsDate = new Date();
+            slipWarehouseInput.value = '';
+            slipTransporterInput.value = '';
+            
+            createWeighingTable();
+            updateCalculations();
+        }
+
+        backToCustomersBtn.addEventListener('click', () => {
+            weighingSlipView.classList.add('hidden');
+            customerView.classList.remove('hidden');
+        });
+
+        saveWeighingSlipBtn.addEventListener('click', async () => {
+            const customerName = slipCustomerNameInput.value.trim();
+            const slipDate = slipDateInput.value;
+            const warehouse = slipWarehouseInput.value.trim();
+            const transporter = slipTransporterInput.value.trim();
+            const totalRows = parseInt(totalRowsInput.value);
+            const totalColumn3 = parseFloat(totalColumn3Input.value);
+
+            if (customerName === '' || slipDate === '' || warehouse === '' || transporter === '') {
+                alert('Vui lòng nhập đầy đủ Tên khách hàng, Ngày tháng, Kho hàng và Người vận chuyển.');
+                return;
+            }
+            
+            let hasWarning = false;
+            const dataRows = [];
+            const rows = weighingTableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const col1Input = row.querySelector('.col1');
+                const col2Input = row.querySelector('.col2');
+                const resultSpan = row.querySelector('.result');
+                
+                const col1Value = col1Input.value.trim();
+                const col2Value = col2Input.value.trim();
+                
+                if (col1Value !== '' || col2Value !== '') {
+                    dataRows.push({
+                        col1: parseFloat(col1Value) || null,
+                        col2: parseFloat(col2Value) || null,
+                    });
+                    
+                    const val1 = parseFloat(col1Value);
+                    const result = parseFloat(resultSpan.textContent);
+                    
+                    // Check for warning conditions
+                    if ((!isNaN(val1) && (val1 < 33 || val1 > 37))) {
+                        hasWarning = true;
+                    }
+                    if ((!isNaN(result) && (result < 0 || result > 45))) {
+                        hasWarning = true;
+                    }
+                }
+            });
+            
+            if (hasWarning) {
+                alert("số liệu nhập vào có thể bị sai, cần kiểm tra");
+            }
+
+            if (currentSlipId) {
+                // Sửa phiếu đã có
+                set(ref(database, 'weighingSlips/' + currentSlipId), {
+                    customerName: customerName,
+                    date: slipDate,
+                    warehouse: warehouse,
+                    transporter: transporter,
+                    totalRows: totalRows,
+                    totalWeight: totalColumn3,
+                    data: dataRows
+                })
+                .then(() => {
+                    alert('Cập nhật phiếu cân thành công!');
+                    backToCustomersBtn.click();
+                })
+                .catch(error => {
+                    alert('Lỗi khi cập nhật phiếu cân: ' + error.message);
+                });
+            } else {
+                // Lưu phiếu mới
+                const newSlipRef = push(ref(database, 'weighingSlips'));
+                set(newSlipRef, {
+                    customerName: customerName,
+                    date: slipDate,
+                    warehouse: warehouse,
+                    transporter: transporter,
+                    totalRows: totalRows,
+                    totalWeight: totalColumn3,
+                    data: dataRows
+                })
+                .then(() => {
+                    alert('Lưu phiếu cân thành công!');
+                    backToCustomersBtn.click();
+                })
+                .catch(error => {
+                    alert('Lỗi khi lưu phiếu cân: ' + error.message);
+                });
+            }
+        });
+        
+        // --- Chức năng Xem và Sửa phiếu cân ---
+        viewSlipsBtn.addEventListener('click', () => {
+            customerView.classList.add('hidden');
+            weighingSlipsListView.classList.remove('hidden');
+        });
+
+        backFromSlipsBtn.addEventListener('click', () => {
+            weighingSlipsListView.classList.add('hidden');
+            customerView.classList.remove('hidden');
+        });
+        
+        // Xóa toàn bộ phiếu
+        deleteAllSlipsBtn.addEventListener('click', () => {
+            const password = prompt('CẢNH BÁO: Thao tác này sẽ xóa toàn bộ danh sách phiếu cân. Vui lòng nhập mật khẩu để xác nhận:');
+            if (password === '54321') {
+                remove(ref(database, 'weighingSlips'))
+                .then(() => {
+                    alert('Đã xóa toàn bộ danh sách phiếu cân thành công!');
+                })
+                .catch((error) => {
+                    alert('Đã xảy ra lỗi khi xóa toàn bộ danh sách: ' + error.message);
+                });
+            } else {
+                alert('Mật khẩu không đúng. Vui lòng thử lại.');
+            }
+        });
+
+        // Xuất danh sách phiếu ra Excel
+        exportSlipsBtn.addEventListener('click', () => {
+            if (weighingSlipsData.length === 0) {
+                alert('Không có dữ liệu phiếu cân để xuất ra file Excel.');
+                return;
+            }
+            const worksheet = XLSX.utils.json_to_sheet(weighingSlipsData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachPhieuCan");
+            XLSX.writeFile(workbook, "danh-sach-phieu-can.xlsx");
+        });
+        
+        // Chức năng in phiếu
+        function printSlip(slipData, slipNumber) {
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                alert('Vui lòng cho phép cửa sổ pop-up để xem phiếu in.');
+                return;
+            }
+            
+            const content = createPrintContent(slipData, slipNumber);
+            
+            printWindow.document.write(content);
+            printWindow.document.close();
+            
+            // Wait for content to load before printing
+            printWindow.onload = () => {
+                printWindow.print();
+            };
+        }
+
+        // Tạo nội dung HTML cho trang in với bố cục mới
+        function createPrintContent(slipData, slipNumber) {
+            const weighingData = slipData.data || [];
+            
+            let tableContent = '';
+            const totalRows = 100;
+            const rowsPerColumn = 25;
+            const numColumns = 4;
+            
+            // Generate table rows
+            for (let i = 0; i < rowsPerColumn; i++) {
+                tableContent += '<tr>';
+                for (let j = 0; j < numColumns; j++) {
+                    const index = i + (j * rowsPerColumn);
+                    if (index < weighingData.length) {
+                        const rowData = weighingData[index];
+                        const col1Value = rowData.col1 !== null ? rowData.col1 : '';
+                        const col2Value = rowData.col2 !== null ? rowData.col2 : '';
+                        tableContent += `
+                            <td class="tt-column">${index + 1}</td>
+                            <td>${col1Value}</td>
+                            <td>${col2Value}</td>
+                        `;
+                    } else {
+                        // Fill remaining cells with empty values to maintain table structure
+                        tableContent += `
+                            <td class="tt-column">${index + 1}</td>
+                            <td></td>
+                            <td></td>
+                        `;
+                    }
+                }
+                tableContent += '</tr>';
+            }
+
+            return `
+                <!DOCTYPE html>
+                <html lang="vi">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Phiếu Cân Gas Dư</title>
+                    <style>
+                        @media print {
+                            body {
+                                margin: 0;
+                                padding: 0;
+                                font-family: 'Times New Roman', Times, serif;
+                                font-size: 12pt;
+                            }
+                            .print-container {
+                                width: 21cm; /* A4 width */
+                                min-height: 29.7cm; /* A4 height */
+                                margin: 0 auto;
+                                padding: 1cm;
+                                box-sizing: border-box;
+                            }
+                            .print-header-container {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                position: relative;
+                            }
+                            .print-logo {
+                                position: absolute;
+                                left: 0;
+                                top: -1cm; /* Nâng logo lên một hàng chữ */
+                                width: 1.5cm;
+                                height: 1.5cm;
+                                margin-left: 1cm;
+                            }
+                            .company-info-block {
+                                text-align: center;
+                                margin-top: -0.5cm;
+                            }
+                            .company-info {
+                                text-align: center;
+                                line-height: 1.2;
+                                margin: 0;
+                            }
+                            .branch-info {
+                                margin-bottom: 0.5cm;
+                            }
+                            .print-title {
+                                text-align: center;
+                                font-weight: bold;
+                                font-size: 14pt;
+                                margin-bottom: 1cm;
+                            }
+                            .print-info {
+                                display: flex;
+                                flex-wrap: wrap;
+                                justify-content: space-between;
+                                margin-bottom: 20px;
+                            }
+                            .print-info p {
+                                margin: 5px 0;
+                                width: 48%;
+                                text-align: left;
+                            }
+                            .print-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 20px;
+                                font-size: 10pt;
+                                table-layout: fixed;
+                            }
+                            .print-table th, .print-table td {
+                                border: 1px solid #000;
+                                padding: 5px;
+                                text-align: center;
+                                word-wrap: break-word;
+                            }
+                            .print-table th {
+                                background-color: #f2f2f2;
+                            }
+                            .print-signatures {
+                                display: flex;
+                                justify-content: space-around;
+                                text-align: center;
+                                margin-top: 10px; /* Kéo lại gần bảng số liệu hơn */
+                            }
+                            .print-signatures div {
+                                flex-basis: 45%;
+                            }
+                            
+                            /* Định dạng chữ nghiêng cho cột TT */
+                            .print-table .tt-column {
+                                font-style: italic;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">
+                        <div class="print-header-container">
+                            <img src="https://pvgaslpg.com.vn/uploads/LPG%20xanh%20animation.gif" alt="Logo PV Gas LPG" class="print-logo">
+                            <div class="company-info-block">
+                                <p class="company-info">PV GAS LPG - CHI NHÁNH MIỀN BẮC</p>
+                                <p class="company-info branch-info">TRẠM NẠP LPG HÀ NỘI</p>
+                            </div>
+                        </div>
+                        <h1 class="print-title">PHIẾU CÂN GAS DƯ</h1>
+
+                        <div class="print-info">
+                            <p>Số thứ tự: ${slipNumber}</p>
+                            <p>Ngày: ${slipData.date}</p>
+                            <p>Khách hàng: ${slipData.customerName}</p>
+                            <p>Người vận chuyển: ${slipData.transporter}</p>
+                            <p>Tổng số chai: ${slipData.totalRows}</p>
+                            <p>Tổng KL gas thừa: <span style="font-size: 14pt; font-weight: bold;">${slipData.totalWeight.toFixed(2)} kg</span></p>
+                        </div>
+                        
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th class="tt-column">TT</th>
+                                    <th>Vỏ</th>
+                                    <th>Cân</th>
+                                    <th class="tt-column">TT</th>
+                                    <th>Vỏ</th>
+                                    <th>Cân</th>
+                                    <th class="tt-column">TT</th>
+                                    <th>Vỏ</th>
+                                    <th>Cân</th>
+                                    <th class="tt-column">TT</th>
+                                    <th>Vỏ</th>
+                                    <th>Cân</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableContent}
+                            </tbody>
+                        </table>
+                        
+                        <div class="print-signatures">
+                            <div>
+                                <p>THỦ KHO</p>
+                            </div>
+                            <div>
+                                <p>KHÁCH HÀNG</p>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+        
+        onValue(ref(database, 'weighingSlips'), (snapshot) => {
+            const data = snapshot.val();
+            weighingSlipsData = []; // Clear the array before repopulating
+            weighingSlipsTableBody.innerHTML = '';
+            if (data) {
+                let index = 1;
+                Object.keys(data).forEach(key => {
+                    const slip = { ...data[key], key: key }; // Thêm key vào object để sử dụng
+                    weighingSlipsData.push({
+                        'Số thứ tự phiếu': index,
+                        'Ngày lập phiếu': slip.date,
+                        'Tên khách hàng': slip.customerName,
+                        'Kho hàng': slip.warehouse || 'N/A',
+                        'Người vận chuyển': slip.transporter || 'N/A',
+                        'Tổng số chai': slip.totalRows,
+                        'Tổng KL gas thừa': slip.totalWeight.toFixed(2)
+                    });
+
+                    const row = weighingSlipsTableBody.insertRow();
+                    row.insertCell(0).textContent = index;
+                    row.insertCell(1).textContent = slip.date;
+                    row.insertCell(2).textContent = slip.customerName;
+                    row.insertCell(3).textContent = slip.warehouse || 'N/A';
+                    row.insertCell(4).textContent = slip.transporter || 'N/A';
+                    row.insertCell(5).textContent = slip.totalRows;
+                    row.insertCell(6).textContent = slip.totalWeight.toFixed(2);
+                    
+                    const actionsCell = row.insertCell(7);
+                    actionsCell.classList.add('action-buttons');
+                    
+                    const printBtn = document.createElement('button');
+                    printBtn.textContent = 'Xuất in phiếu';
+                    printBtn.className = 'print-slip-btn';
+                    printBtn.addEventListener('click', () => {
+                        printSlip(slip, index);
+                    });
+                    actionsCell.appendChild(printBtn);
+                    
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = 'Sửa phiếu';
+                    editBtn.className = 'edit-slip-btn';
+                    editBtn.addEventListener('click', () => {
+                        openEditWeighingSlip(slip);
+                    });
+                    actionsCell.appendChild(editBtn);
+
+                    index++;
+                });
+            }
+        });
+        
+        function openEditWeighingSlip(slipData) {
+            currentSlipId = slipData.key;
+            weighingSlipsListView.classList.add('hidden');
+            weighingSlipView.classList.remove('hidden');
+
+            slipCustomerNameInput.value = slipData.customerName;
+            slipDateInput.value = slipData.date;
+            slipWarehouseInput.value = slipData.warehouse;
+            slipTransporterInput.value = slipData.transporter;
+            
+            createWeighingTable(slipData.data);
+            updateCalculations();
+        }
+    </script>
+</body>
+</html>
