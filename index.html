@@ -103,6 +103,12 @@
             padding: 10px 15px;
             font-size: 16px;
         }
+
+        button.export-slips-data-btn {
+            background-color: #007bff;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
         
         button.print-slip-btn {
             background-color: #2ecc71;
@@ -159,7 +165,7 @@
             background-color: #27ae60;
         }
 
-        button.export-slips-btn:hover {
+        button.export-slips-btn:hover, button.export-slips-data-btn:hover {
             background-color: #e67e22;
         }
 
@@ -569,7 +575,7 @@
             <div class="list-header-slips">
                 <h2>Danh sách phiếu cân</h2>
                 <div class="list-header-buttons">
-                    <button id="exportSlipsBtn" class="export-slips-btn">Xuất DS phiếu ra Excel</button>
+                    <button id="exportSlipsDataBtn" class="export-slips-data-btn">Xuất DS phiếu ra Excel</button>
                     <button id="deleteAllSlipsBtn" class="delete-all-btn">Xóa toàn bộ phiếu</button>
                 </div>
             </div>
@@ -589,19 +595,22 @@
                 </thead>
                 <tbody>
                     </tbody>
-                </table>
+            </table>
+            <div class="pagination-controls">
+                <button id="prevPageBtn">Trang trước</button>
+                <span id="currentPageInfo">Trang 1 / 1</span>
+                <button id="nextPageBtn">Trang sau</button>
+            </div>
         </div>
     </div>
     
-    <!-- Cửa sổ in phiếu cân -->
     <div class="hidden" id="print-slip-container">
-        <!-- Nội dung sẽ được tạo động tại đây -->
-    </div>
+        </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove, get, child, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, remove, get, child, push, query, limitToLast } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
         // --- CHỨC NĂNG YÊU CẦU MẬT KHẨU ---
         const correctPassword = "can";
@@ -666,10 +675,16 @@
         const weighingSlipsTableBody = document.querySelector('#weighingSlipsTable tbody');
         const backFromSlipsBtn = document.getElementById('backFromSlipsBtn');
         const deleteAllSlipsBtn = document.getElementById('deleteAllSlipsBtn');
-        const exportSlipsBtn = document.getElementById('exportSlipsBtn');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const currentPageInfo = document.getElementById('currentPageInfo');
+        const exportSlipsDataBtn = document.getElementById('exportSlipsDataBtn');
+
 
         let currentSlipId = null;
         let weighingSlipsData = [];
+        const slipsPerPage = 30;
+        let currentPage = 1;
 
         // Tạo bảng nhập liệu
         const NUM_ROWS = 100;
@@ -971,6 +986,7 @@
             currentSlipId = null; // Đảm bảo đây là phiếu mới
             customerView.classList.add('hidden');
             weighingSlipView.classList.remove('hidden');
+            weighingSlipView.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
             slipCustomerNameInput.value = customerName;
             slipDateInput.valueAsDate = new Date();
@@ -1077,6 +1093,7 @@
         viewSlipsBtn.addEventListener('click', () => {
             customerView.classList.add('hidden');
             weighingSlipsListView.classList.remove('hidden');
+            loadSlips();
         });
 
         backFromSlipsBtn.addEventListener('click', () => {
@@ -1100,18 +1117,33 @@
             }
         });
 
-        // Xuất danh sách phiếu ra Excel
-        exportSlipsBtn.addEventListener('click', () => {
-            if (weighingSlipsData.length === 0) {
+        // Chức năng xuất toàn bộ dữ liệu phiếu cân ra Excel
+        exportSlipsDataBtn.addEventListener('click', () => {
+            if (allSlips.length === 0) {
                 alert('Không có dữ liệu phiếu cân để xuất ra file Excel.');
                 return;
             }
-            const worksheet = XLSX.utils.json_to_sheet(weighingSlipsData);
+
+            const exportedData = allSlips.map((slip, index) => {
+                // Tính số thứ tự ngược từ cuối lên
+                const slipNumber = allSlips.length - index;
+                return {
+                    'Số thứ tự phiếu': slipNumber,
+                    'Ngày lập phiếu': slip.date,
+                    'Tên khách hàng': slip.customerName,
+                    'Kho hàng': slip.warehouse || 'N/A',
+                    'Người vận chuyển': slip.transporter || 'N/A',
+                    'Tổng số chai': slip.totalRows,
+                    'Tổng KL gas thừa': parseFloat(slip.totalWeight).toFixed(2)
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportedData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachPhieuCan");
             XLSX.writeFile(workbook, "danh-sach-phieu-can.xlsx");
         });
-        
+
         // Chức năng in phiếu
         function printSlip(slipData, slipNumber) {
             const printWindow = window.open('', '_blank');
@@ -1320,54 +1352,83 @@
             `;
         }
         
-        onValue(ref(database, 'weighingSlips'), (snapshot) => {
+        // Cập nhật hàm onValue để xử lý phân trang
+        const slipsRef = ref(database, 'weighingSlips');
+        let allSlips = [];
+        let totalPages = 1;
+
+        onValue(slipsRef, (snapshot) => {
             const data = snapshot.val();
-            weighingSlipsData = []; // Clear the array before repopulating
-            weighingSlipsTableBody.innerHTML = '';
+            allSlips = [];
             if (data) {
-                let index = 1;
-                Object.keys(data).forEach(key => {
-                    const slip = { ...data[key], key: key }; // Thêm key vào object để sử dụng
-                    weighingSlipsData.push({
-                        'Số thứ tự phiếu': index,
-                        'Ngày lập phiếu': slip.date,
-                        'Tên khách hàng': slip.customerName,
-                        'Kho hàng': slip.warehouse || 'N/A',
-                        'Người vận chuyển': slip.transporter || 'N/A',
-                        'Tổng số chai': slip.totalRows,
-                        'Tổng KL gas thừa': slip.totalWeight.toFixed(2)
-                    });
+                // Sắp xếp các phiếu theo thứ tự thời gian tạo (key của firebase là timestamp)
+                const sortedKeys = Object.keys(data).sort().reverse();
+                allSlips = sortedKeys.map(key => ({ ...data[key], key }));
+            }
+            totalPages = Math.ceil(allSlips.length / slipsPerPage);
+            if (currentPage > totalPages) {
+                currentPage = totalPages > 0 ? totalPages : 1;
+            }
+            renderSlipsTable();
+        });
 
-                    const row = weighingSlipsTableBody.insertRow();
-                    row.insertCell(0).textContent = index;
-                    row.insertCell(1).textContent = slip.date;
-                    row.insertCell(2).textContent = slip.customerName;
-                    row.insertCell(3).textContent = slip.warehouse || 'N/A';
-                    row.insertCell(4).textContent = slip.transporter || 'N/A';
-                    row.insertCell(5).textContent = slip.totalRows;
-                    row.insertCell(6).textContent = slip.totalWeight.toFixed(2);
-                    
-                    const actionsCell = row.insertCell(7);
-                    actionsCell.classList.add('action-buttons');
-                    
-                    const printBtn = document.createElement('button');
-                    printBtn.textContent = 'Xuất in phiếu';
-                    printBtn.className = 'print-slip-btn';
-                    printBtn.addEventListener('click', () => {
-                        printSlip(slip, index);
-                    });
-                    actionsCell.appendChild(printBtn);
-                    
-                    const editBtn = document.createElement('button');
-                    editBtn.textContent = 'Sửa phiếu';
-                    editBtn.className = 'edit-slip-btn';
-                    editBtn.addEventListener('click', () => {
-                        openEditWeighingSlip(slip);
-                    });
-                    actionsCell.appendChild(editBtn);
+        function renderSlipsTable() {
+            weighingSlipsTableBody.innerHTML = '';
+            const startIndex = (currentPage - 1) * slipsPerPage;
+            const endIndex = Math.min(startIndex + slipsPerPage, allSlips.length);
 
-                    index++;
+            const slipsToShow = allSlips.slice(startIndex, endIndex);
+
+            slipsToShow.forEach((slip, index) => {
+                const globalIndex = allSlips.length - (startIndex + index);
+                const row = weighingSlipsTableBody.insertRow();
+                row.insertCell(0).textContent = globalIndex;
+                row.insertCell(1).textContent = slip.date;
+                row.insertCell(2).textContent = slip.customerName;
+                row.insertCell(3).textContent = slip.warehouse || 'N/A';
+                row.insertCell(4).textContent = slip.transporter || 'N/A';
+                row.insertCell(5).textContent = slip.totalRows;
+                row.insertCell(6).textContent = slip.totalWeight.toFixed(2);
+                
+                const actionsCell = row.insertCell(7);
+                actionsCell.classList.add('action-buttons');
+                
+                const printBtn = document.createElement('button');
+                printBtn.textContent = 'Xuất in phiếu';
+                printBtn.className = 'print-slip-btn';
+                printBtn.addEventListener('click', () => {
+                    printSlip(slip, globalIndex);
                 });
+                actionsCell.appendChild(printBtn);
+                
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Sửa phiếu';
+                editBtn.className = 'edit-slip-btn';
+                editBtn.addEventListener('click', () => {
+                    openEditWeighingSlip(slip);
+                });
+                actionsCell.appendChild(editBtn);
+            });
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            currentPageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderSlipsTable();
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderSlipsTable();
             }
         });
         
