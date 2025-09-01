@@ -467,16 +467,27 @@
             width: 100%;
             background-color: #fff;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-            padding: 10px;
+            padding: 5px; /* Giảm padding */
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 5px; /* Giảm khoảng cách giữa các phím */
             z-index: 1000;
             transform: translateY(100%);
             transition: transform 0.3s ease-in-out;
-            max-width: 400px; /* Giới hạn chiều rộng cho máy tính bảng */
-            margin: 0 auto;
         }
+        
+        /* Giới hạn kích thước trên màn hình lớn hơn mobile */
+        @media (min-width: 400px) {
+            #custom-keyboard {
+                max-width: 350px;
+                left: 50%;
+                transform: translateX(-50%) translateY(100%);
+            }
+            #custom-keyboard.visible {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
 
         #custom-keyboard.visible {
             transform: translateY(0);
@@ -484,8 +495,8 @@
 
         #custom-keyboard button {
             width: 100%;
-            padding: 20px 0;
-            font-size: 24px;
+            padding: 15px 0; /* Giảm padding */
+            font-size: 20px; /* Giảm font-size */
             font-weight: bold;
             background-color: #f0f0f0;
             border: 1px solid #ddd;
@@ -497,8 +508,7 @@
             background-color: #e0e0e0;
         }
 
-        #custom-keyboard #key-backspace,
-        #custom-keyboard #key-done {
+        #custom-keyboard #key-backspace {
             background-color: #e74c3c;
             color: white;
             font-size: 18px;
@@ -506,8 +516,22 @@
 
         #custom-keyboard #key-done {
             background-color: #2ecc71;
+            color: white;
+            font-size: 18px;
             grid-column: span 2;
         }
+        
+        /* Tối ưu hóa giao diện cho mobile */
+        @media (max-width: 768px) {
+            #weighing-slip-view .weighing-slip-content {
+                flex-direction: column;
+            }
+            
+            #weighingTable td {
+                padding: 8px;
+            }
+        }
+        
     </style>
 </head>
 <body>
@@ -515,7 +539,7 @@
     <div class="container" id="main-content">
         <header>
             <img src="https://pvgaslpg.com.vn/uploads/LPG%20xanh%20animation.gif" alt="Logo PV Gas LPG" width="150" height="150">
-            <h1>CHƯƠNG TRƯƠNG TRÌNH LẬP PHIẾU CÂN TRẢ GAS THỪA</h1>
+            <h1>CHƯƠNG TRÌNH LẬP PHIẾU CÂN TRẢ GAS THỪA</h1>
         </header>
 
         <div id="customer-view">
@@ -620,19 +644,19 @@
             </div>
             
             <div id="custom-keyboard">
-                <button class="num-key">1</button>
-                <button class="num-key">2</button>
-                <button class="num-key">3</button>
-                <button class="num-key">4</button>
-                <button class="num-key">5</button>
-                <button class="num-key">6</button>
-                <button class="num-key">7</button>
-                <button class="num-key">8</button>
-                <button class="num-key">9</button>
-                <button id="key-backspace">Xoá</button>
-                <button class="num-key">0</button>
-                <button id="key-decimal">.</button>
-                <button id="key-done">Xong</button>
+                <button class="num-key" data-key="1">1</button>
+                <button class="num-key" data-key="2">2</button>
+                <button class="num-key" data-key="3">3</button>
+                <button class="num-key" data-key="4">4</button>
+                <button class="num-key" data-key="5">5</button>
+                <button class="num-key" data-key="6">6</button>
+                <button class="num-key" data-key="7">7</button>
+                <button class="num-key" data-key="8">8</button>
+                <button class="num-key" data-key="9">9</button>
+                <button id="key-backspace" data-key="backspace">Xoá</button>
+                <button class="num-key" data-key="0">0</button>
+                <button id="key-decimal" data-key="decimal">.</button>
+                <button id="key-done" data-key="done">Xong</button>
             </div>
         </div>
         
@@ -747,10 +771,6 @@
         
         // Lấy các phần tử DOM cho bàn phím tùy chỉnh
         const customKeyboard = document.getElementById('custom-keyboard');
-        const numKeys = customKeyboard.querySelectorAll('.num-key');
-        const keyDecimal = document.getElementById('key-decimal');
-        const keyBackspace = document.getElementById('key-backspace');
-        const keyDone = document.getElementById('key-done');
         let activeInput = null;
 
 
@@ -890,39 +910,37 @@
             }
         });
         
-        // Logic cho bàn phím ảo
-        numKeys.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault(); // Ngăn sự kiện click gây blur
-                if (activeInput) {
-                    activeInput.value += button.textContent;
-                    updateCalculations();
+        weighingTableBody.addEventListener('focusout', (e) => {
+             // Ẩn bàn phím khi không còn focus
+            setTimeout(() => {
+                if (!customKeyboard.contains(document.activeElement)) {
+                    customKeyboard.classList.remove('visible');
+                    activeInput = null;
                 }
-            });
+            }, 0);
         });
 
-        keyDecimal.addEventListener('click', (e) => {
-            e.preventDefault(); // Ngăn sự kiện click gây blur
-            if (activeInput && !activeInput.value.includes('.')) {
-                activeInput.value += '.';
-                updateCalculations();
-            }
-        });
+        // Logic mới cho bàn phím ảo
+        customKeyboard.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (!button || !activeInput) return;
 
-        keyBackspace.addEventListener('click', (e) => {
-            e.preventDefault(); // Ngăn sự kiện click gây blur
-            if (activeInput) {
+            e.preventDefault(); 
+            const key = button.dataset.key;
+
+            if (key >= '0' && key <= '9') {
+                activeInput.value += key;
+            } else if (key === 'decimal') {
+                if (!activeInput.value.includes('.')) {
+                    activeInput.value += '.';
+                }
+            } else if (key === 'backspace') {
                 activeInput.value = activeInput.value.slice(0, -1);
-                updateCalculations();
-            }
-        });
-        
-        keyDone.addEventListener('click', () => {
-            if (activeInput) {
+            } else if (key === 'done') {
                 activeInput.blur();
+                customKeyboard.classList.remove('visible');
             }
-            customKeyboard.classList.remove('visible');
-            activeInput = null;
+            updateCalculations();
         });
 
 
