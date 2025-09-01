@@ -109,12 +109,6 @@
             padding: 5px 10px;
             font-size: 14px;
         }
-        
-        button.export-slips-data-btn {
-            background-color: #007bff;
-            padding: 10px 15px;
-            font-size: 16px;
-        }
 
         button.delete-all-btn {
             background-color: #e74c3c;
@@ -165,7 +159,7 @@
             background-color: #27ae60;
         }
 
-        button.export-slips-btn:hover, button.export-slips-data-btn:hover {
+        button.export-slips-btn:hover {
             background-color: #e67e22;
         }
 
@@ -272,22 +266,14 @@
             font-weight: bold;
         }
         
-        /* Cập nhật CSS cho bảng cân */
-        #weighingTable th, #weighingTable td {
-            text-align: center;
-        }
-        
-        #weighingTable th:nth-child(1), #weighingTable td:nth-child(1) {
-            width: 60px; /* Số thứ tự */
-        }
-        #weighingTable th:nth-child(2), #weighingTable td:nth-child(2) {
-            width: 120px; /* Khối lượng vỏ */
-        }
-        #weighingTable th:nth-child(3), #weighingTable td:nth-child(3) {
-            width: 120px; /* Khối lượng cân */
-        }
-        #weighingTable th:nth-child(4), #weighingTable td:nth-child(4) {
-            width: 100px; /* Gas thừa */
+        #weighingTable th:nth-child(1),
+        #weighingTable th:nth-child(2),
+        #weighingTable td:nth-child(1),
+        #weighingTable td:nth-child(2) {
+            width: 150px; 
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 
@@ -467,56 +453,6 @@
             }
         }
         
-        
-        /* Tối ưu hóa giao diện cho mobile */
-        @media (max-width: 768px) {
-            #weighing-slip-view .weighing-slip-content {
-                flex-direction: column;
-            }
-            
-            #weighingTable td {
-                padding: 8px;
-            }
-            
-            /* CSS mới cho bảng khách hàng */
-            #customerTable thead {
-                display: none; /* Ẩn header của bảng trên mobile */
-            }
-
-            #customerTable tr {
-                display: block;
-                border: 1px solid #ddd;
-                margin-bottom: 15px;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            }
-
-            #customerTable td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                text-align: right;
-                padding: 10px;
-                border: none;
-                border-bottom: 1px solid #eee;
-            }
-            
-            #customerTable td:before {
-                content: attr(data-label);
-                font-weight: bold;
-                text-align: left;
-                flex-basis: 50%;
-            }
-            
-            #customerTable td:last-child {
-                border-bottom: none;
-            }
-
-            .action-buttons {
-                justify-content: flex-end;
-            }
-        }
-        
     </style>
 </head>
 <body>
@@ -616,7 +552,6 @@
                         <table id="weighingTable">
                             <thead>
                                 <tr>
-                                    <th>Số thứ tự</th>
                                     <th>Khối lượng vỏ</th>
                                     <th>Khối lượng cân</th>
                                     <th>Gas thừa</th>
@@ -628,14 +563,13 @@
                     </section>
                 </div>
             </div>
-            
         </div>
         
         <div class="hidden" id="weighing-slips-list-view">
             <div class="list-header-slips">
                 <h2>Danh sách phiếu cân</h2>
                 <div class="list-header-buttons">
-                    <button id="exportSlipsDataBtn" class="export-slips-data-btn">Xuất DS phiếu ra Excel</button>
+                    <button id="exportSlipsBtn" class="export-slips-btn">Xuất DS phiếu ra Excel</button>
                     <button id="deleteAllSlipsBtn" class="delete-all-btn">Xóa toàn bộ phiếu</button>
                 </div>
             </div>
@@ -735,12 +669,11 @@
         const weighingSlipsTableBody = document.querySelector('#weighingSlipsTable tbody');
         const backFromSlipsBtn = document.getElementById('backFromSlipsBtn');
         const deleteAllSlipsBtn = document.getElementById('deleteAllSlipsBtn');
+        const exportSlipsBtn = document.getElementById('exportSlipsBtn');
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
         const currentPageInfo = document.getElementById('currentPageInfo');
-        const exportSlipsDataBtn = document.getElementById('exportSlipsDataBtn');
-        
-        
+
         let currentSlipId = null;
         let weighingSlipsData = [];
         const slipsPerPage = 30;
@@ -756,14 +689,29 @@
                 const col2Value = dataRows[i] ? dataRows[i].col2 || '' : '';
                 const result = dataRows[i] ? (parseFloat(dataRows[i].col2) || 0) - (parseFloat(dataRows[i].col1) || 0) : 0;
                 row.innerHTML = `
-                    <td>${i + 1}</td>
-                    <td><input type="number" class="weighing-input col1" data-row="${i}" value="${col1Value}" inputmode="numeric"></td>
-                    <td><input type="number" class="weighing-input col2" data-row="${i}" value="${col2Value}" inputmode="numeric"></td>
+                    <td><input type="text" class="weighing-input col1" data-row="${i}" value="${col1Value}" inputmode="decimal" title="Vui lòng nhập số thập phân."></td>
+                    <td><input type="text" class="weighing-input col2" data-row="${i}" value="${col2Value}" inputmode="decimal" title="Vui lòng nhập số thập phân."></td>
                     <td><span class="result">${result.toFixed(2)}</span></td>
                 `;
             }
         }
         createWeighingTable();
+
+        // Hàm kiểm tra và giới hạn nhập liệu
+        function enforceNumberInput(input) {
+            let value = input.value;
+            // Biểu thức chính quy: Số nguyên tối đa 2 chữ số, phần thập phân tối đa 1 chữ số
+            const regex = /^\d{0,2}(\.\d{0,1})?$/;
+            
+            if (value.startsWith('.')) {
+                value = '0' + value;
+            }
+
+            if (!regex.test(value)) {
+                // Xóa ký tự cuối cùng nếu không hợp lệ
+                input.value = value.slice(0, -1);
+            }
+        }
 
         // Cập nhật tổng số dòng và tổng giá trị cột 3
         function updateCalculations() {
@@ -775,6 +723,10 @@
                 const col1Input = row.querySelector('.col1');
                 const col2Input = row.querySelector('.col2');
                 const resultSpan = row.querySelector('.result');
+                
+                // Áp dụng hàm kiểm tra định dạng cho từng input
+                enforceNumberInput(col1Input);
+                enforceNumberInput(col2Input);
                 
                 const val1 = parseFloat(col1Input.value) || 0;
                 const val2 = parseFloat(col2Input.value) || 0;
@@ -874,6 +826,7 @@
             }
         });
 
+
         // --- Xử lý chức năng khách hàng ---
         saveBtn.addEventListener('click', async () => {
             const customerId = customerIdInput.value.trim();
@@ -966,22 +919,28 @@
                     });
 
                     const row = customerTableBody.insertRow();
-                    row.innerHTML = `
-                        <td data-label="Thứ tự">${index++}</td>
-                        <td data-label="Mã số">${displayedId}</td>
-                        <td data-label="Tên khách hàng">${customer.name}</td>
-                        <td data-label="Thao tác" class="action-buttons">
-                            <button class="weighing-btn">Lập phiếu cân</button>
-                            <button class="delete-btn">Xoá</button>
-                        </td>
-                    `;
+                    row.insertCell(0).textContent = index++;
+                    row.insertCell(1).textContent = displayedId;
+                    row.insertCell(2).textContent = customer.name;
                     
-                    row.querySelector('.weighing-btn').addEventListener('click', () => {
+                    const actionsCell = row.insertCell(3);
+                    actionsCell.classList.add('action-buttons');
+                    
+                    const weighingBtn = document.createElement('button');
+                    weighingBtn.textContent = 'Lập phiếu cân';
+                    weighingBtn.className = 'weighing-btn';
+                    weighingBtn.addEventListener('click', () => {
                         openWeighingSlip(customer.name);
                     });
-                    row.querySelector('.delete-btn').addEventListener('click', () => {
+                    actionsCell.appendChild(weighingBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Xoá';
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.addEventListener('click', () => {
                         deleteCustomer(key);
                     });
+                    actionsCell.appendChild(deleteBtn);
                 }
             }
         });
@@ -1040,7 +999,6 @@
             currentSlipId = null; // Đảm bảo đây là phiếu mới
             customerView.classList.add('hidden');
             weighingSlipView.classList.remove('hidden');
-            weighingSlipView.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
             slipCustomerNameInput.value = customerName;
             slipDateInput.valueAsDate = new Date();
@@ -1171,33 +1129,18 @@
             }
         });
 
-        // Chức năng xuất toàn bộ dữ liệu phiếu cân ra Excel
-        exportSlipsDataBtn.addEventListener('click', () => {
-            if (allSlips.length === 0) {
+        // Xuất danh sách phiếu ra Excel
+        exportSlipsBtn.addEventListener('click', () => {
+            if (weighingSlipsData.length === 0) {
                 alert('Không có dữ liệu phiếu cân để xuất ra file Excel.');
                 return;
             }
-
-            const exportedData = allSlips.map((slip, index) => {
-                // Tính số thứ tự ngược từ cuối lên
-                const slipNumber = allSlips.length - index;
-                return {
-                    'Số thứ tự phiếu': slipNumber,
-                    'Ngày lập phiếu': slip.date,
-                    'Tên khách hàng': slip.customerName,
-                    'Kho hàng': slip.warehouse || 'N/A',
-                    'Người vận chuyển': slip.transporter || 'N/A',
-                    'Tổng số chai': slip.totalRows,
-                    'Tổng KL gas thừa': parseFloat(slip.totalWeight).toFixed(2)
-                };
-            });
-
-            const worksheet = XLSX.utils.json_to_sheet(exportedData);
+            const worksheet = XLSX.utils.json_to_sheet(weighingSlipsData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachPhieuCan");
             XLSX.writeFile(workbook, "danh-sach-phieu-can.xlsx");
         });
-
+        
         // Chức năng in phiếu
         function printSlip(slipData, slipNumber) {
             const printWindow = window.open('', '_blank');
