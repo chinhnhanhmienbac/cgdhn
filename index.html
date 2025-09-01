@@ -515,7 +515,7 @@
     <div class="container" id="main-content">
         <header>
             <img src="https://pvgaslpg.com.vn/uploads/LPG%20xanh%20animation.gif" alt="Logo PV Gas LPG" width="150" height="150">
-            <h1>CHƯƠNG TRÌNH LẬP PHIẾU CÂN TRẢ GAS THỪA</h1>
+            <h1>CHƯƠNG TRƯƠNG TRÌNH LẬP PHIẾU CÂN TRẢ GAS THỪA</h1>
         </header>
 
         <div id="customer-view">
@@ -885,25 +885,15 @@
                 e.target.select();
                 activeInput = e.target;
                 if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                    e.target.blur(); // Ẩn bàn phím mặc định của thiết bị
                     customKeyboard.classList.add('visible');
                 }
             }
         });
         
-        // Ẩn bàn phím khi blur khỏi input
-        weighingTableBody.addEventListener('focusout', (e) => {
-            setTimeout(() => {
-                if (!customKeyboard.contains(document.activeElement)) {
-                    customKeyboard.classList.remove('visible');
-                    activeInput = null;
-                }
-            }, 0);
-        });
-        
         // Logic cho bàn phím ảo
         numKeys.forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault(); // Ngăn sự kiện click gây blur
                 if (activeInput) {
                     activeInput.value += button.textContent;
                     updateCalculations();
@@ -911,14 +901,16 @@
             });
         });
 
-        keyDecimal.addEventListener('click', () => {
+        keyDecimal.addEventListener('click', (e) => {
+            e.preventDefault(); // Ngăn sự kiện click gây blur
             if (activeInput && !activeInput.value.includes('.')) {
                 activeInput.value += '.';
                 updateCalculations();
             }
         });
 
-        keyBackspace.addEventListener('click', () => {
+        keyBackspace.addEventListener('click', (e) => {
+            e.preventDefault(); // Ngăn sự kiện click gây blur
             if (activeInput) {
                 activeInput.value = activeInput.value.slice(0, -1);
                 updateCalculations();
