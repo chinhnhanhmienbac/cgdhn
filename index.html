@@ -459,6 +459,55 @@
             }
         }
         
+        /* Bàn phím số tùy chỉnh cho mobile */
+        #custom-keyboard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+            max-width: 400px; /* Giới hạn chiều rộng cho máy tính bảng */
+            margin: 0 auto;
+        }
+
+        #custom-keyboard.visible {
+            transform: translateY(0);
+        }
+
+        #custom-keyboard button {
+            width: 100%;
+            padding: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            color: #333;
+        }
+
+        #custom-keyboard button:hover {
+            background-color: #e0e0e0;
+        }
+
+        #custom-keyboard #key-backspace,
+        #custom-keyboard #key-done {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 18px;
+        }
+
+        #custom-keyboard #key-done {
+            background-color: #2ecc71;
+            grid-column: span 2;
+        }
     </style>
 </head>
 <body>
@@ -568,6 +617,22 @@
                         </table>
                     </section>
                 </div>
+            </div>
+            
+            <div id="custom-keyboard">
+                <button class="num-key">1</button>
+                <button class="num-key">2</button>
+                <button class="num-key">3</button>
+                <button class="num-key">4</button>
+                <button class="num-key">5</button>
+                <button class="num-key">6</button>
+                <button class="num-key">7</button>
+                <button class="num-key">8</button>
+                <button class="num-key">9</button>
+                <button id="key-backspace">Xoá</button>
+                <button class="num-key">0</button>
+                <button id="key-decimal">.</button>
+                <button id="key-done">Xong</button>
             </div>
         </div>
         
@@ -679,6 +744,14 @@
         const nextPageBtn = document.getElementById('nextPageBtn');
         const currentPageInfo = document.getElementById('currentPageInfo');
         const exportSlipsDataBtn = document.getElementById('exportSlipsDataBtn');
+        
+        // Lấy các phần tử DOM cho bàn phím tùy chỉnh
+        const customKeyboard = document.getElementById('custom-keyboard');
+        const numKeys = customKeyboard.querySelectorAll('.num-key');
+        const keyDecimal = document.getElementById('key-decimal');
+        const keyBackspace = document.getElementById('key-backspace');
+        const keyDone = document.getElementById('key-done');
+        let activeInput = null;
 
 
         let currentSlipId = null;
@@ -696,8 +769,8 @@
                 const col2Value = dataRows[i] ? dataRows[i].col2 || '' : '';
                 const result = dataRows[i] ? (parseFloat(dataRows[i].col2) || 0) - (parseFloat(dataRows[i].col1) || 0) : 0;
                 row.innerHTML = `
-                    <td><input type="number" class="col1" data-row="${i}" value="${col1Value}"></td>
-                    <td><input type="number" class="col2" data-row="${i}" value="${col2Value}"></td>
+                    <td><input type="number" class="weighing-input col1" data-row="${i}" value="${col1Value}"></td>
+                    <td><input type="number" class="weighing-input col2" data-row="${i}" value="${col2Value}"></td>
                     <td><span class="result">${result.toFixed(2)}</span></td>
                 `;
             }
@@ -810,7 +883,54 @@
         weighingTableBody.addEventListener('focusin', (e) => {
             if (e.target.tagName.toLowerCase() === 'input') {
                 e.target.select();
+                activeInput = e.target;
+                if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                    e.target.blur(); // Ẩn bàn phím mặc định của thiết bị
+                    customKeyboard.classList.add('visible');
+                }
             }
+        });
+        
+        // Ẩn bàn phím khi blur khỏi input
+        weighingTableBody.addEventListener('focusout', (e) => {
+            setTimeout(() => {
+                if (!customKeyboard.contains(document.activeElement)) {
+                    customKeyboard.classList.remove('visible');
+                    activeInput = null;
+                }
+            }, 0);
+        });
+        
+        // Logic cho bàn phím ảo
+        numKeys.forEach(button => {
+            button.addEventListener('click', () => {
+                if (activeInput) {
+                    activeInput.value += button.textContent;
+                    updateCalculations();
+                }
+            });
+        });
+
+        keyDecimal.addEventListener('click', () => {
+            if (activeInput && !activeInput.value.includes('.')) {
+                activeInput.value += '.';
+                updateCalculations();
+            }
+        });
+
+        keyBackspace.addEventListener('click', () => {
+            if (activeInput) {
+                activeInput.value = activeInput.value.slice(0, -1);
+                updateCalculations();
+            }
+        });
+        
+        keyDone.addEventListener('click', () => {
+            if (activeInput) {
+                activeInput.blur();
+            }
+            customKeyboard.classList.remove('visible');
+            activeInput = null;
         });
 
 
@@ -999,6 +1119,8 @@
 
         backToCustomersBtn.addEventListener('click', () => {
             weighingSlipView.classList.add('hidden');
+            customKeyboard.classList.remove('visible');
+            activeInput = null;
             customerView.classList.remove('hidden');
         });
 
