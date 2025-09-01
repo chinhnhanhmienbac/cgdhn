@@ -237,6 +237,10 @@
         .statistics-section .form-group input {
             flex-grow: 1;
         }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
 
         table {
             width: 100%;
@@ -266,11 +270,17 @@
             font-weight: bold;
         }
         
-        #weighingTable th:nth-child(1),
+        #weighingTable th:first-child,
+        #weighingTable td:first-child {
+            width: 35px;
+            text-align: center;
+        }
+
         #weighingTable th:nth-child(2),
-        #weighingTable td:nth-child(1),
-        #weighingTable td:nth-child(2) {
-            width: 150px; 
+        #weighingTable th:nth-child(3),
+        #weighingTable td:nth-child(2),
+        #weighingTable td:nth-child(3) {
+            width: 70px; 
             white-space: nowrap; 
             overflow: hidden;
             text-overflow: ellipsis;
@@ -452,6 +462,33 @@
                 font-style: italic;
             }
         }
+
+        /* Responsive styles for mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 10px;
+            }
+            .weighing-slip-content {
+                flex-direction: column;
+            }
+            .list-header-buttons button {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            table th, table td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            #weighingTable th:nth-child(2),
+            #weighingTable th:nth-child(3),
+            #weighingTable td:nth-child(2),
+            #weighingTable td:nth-child(3) {
+                width: 60px;
+            }
+        }
         
     </style>
 </head>
@@ -491,18 +528,20 @@
                     </div>
                 </div>
                 
-                <table id="customerTable">
-                    <thead>
-                        <tr>
-                            <th>Thứ tự</th>
-                            <th>Mã số</th>
-                            <th>Tên khách hàng</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="customerTable">
+                        <thead>
+                            <tr>
+                                <th>Thứ tự</th>
+                                <th>Mã số</th>
+                                <th>Tên khách hàng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
             </section>
         </div>
 
@@ -549,17 +588,20 @@
                 <div class="right-panel">
                     <section>
                         <h2>BẢNG CÂN BÌNH</h2>
-                        <table id="weighingTable">
-                            <thead>
-                                <tr>
-                                    <th>Khối lượng vỏ</th>
-                                    <th>Khối lượng cân</th>
-                                    <th>Gas thừa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table id="weighingTable">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Khối lượng vỏ</th>
+                                        <th>Khối lượng cân</th>
+                                        <th>Gas thừa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
                     </section>
                 </div>
             </div>
@@ -574,22 +616,24 @@
                 </div>
             </div>
             <button id="backFromSlipsBtn">Quay lại</button>
-            <table id="weighingSlipsTable">
-                <thead>
-                    <tr>
-                        <th>Số thứ tự phiếu</th>
-                        <th>Ngày lập phiếu</th>
-                        <th>Tên khách hàng</th>
-                        <th>Kho hàng</th>
-                        <th>Người vận chuyển</th>
-                        <th>Tổng số chai</th>
-                        <th>Tổng KL gas thừa</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="weighingSlipsTable">
+                    <thead>
+                        <tr>
+                            <th>Số thứ tự phiếu</th>
+                            <th>Ngày lập phiếu</th>
+                            <th>Tên khách hàng</th>
+                            <th>Kho hàng</th>
+                            <th>Người vận chuyển</th>
+                            <th>Tổng số chai</th>
+                            <th>Tổng KL gas thừa</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
             <div class="pagination-controls">
                 <button id="prevPageBtn">Trang trước</button>
                 <span id="currentPageInfo">Trang 1 / 1</span>
@@ -689,6 +733,7 @@
                 const col2Value = dataRows[i] ? dataRows[i].col2 || '' : '';
                 const result = dataRows[i] ? (parseFloat(dataRows[i].col2) || 0) - (parseFloat(dataRows[i].col1) || 0) : 0;
                 row.innerHTML = `
+                    <td>${i + 1}</td>
                     <td><input type="text" class="weighing-input col1" data-row="${i}" value="${col1Value}" inputmode="decimal" title="Vui lòng nhập số thập phân."></td>
                     <td><input type="text" class="weighing-input col2" data-row="${i}" value="${col2Value}" inputmode="decimal" title="Vui lòng nhập số thập phân."></td>
                     <td><span class="result">${result.toFixed(2)}</span></td>
@@ -1030,6 +1075,7 @@
             
             createWeighingTable();
             updateCalculations();
+            window.scrollTo(0, 0); // Tự động cuộn về đầu trang
         }
 
         backToCustomersBtn.addEventListener('click', () => {
@@ -1240,37 +1286,16 @@
                                 padding: 1cm;
                                 box-sizing: border-box;
                             }
-                            .print-header-container {
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                position: relative;
-                            }
-                            .print-logo {
-                                position: absolute;
-                                left: 0;
-                                top: -1cm; /* Nâng logo lên một hàng chữ */
-                                width: 1.5cm;
-                                height: 1.5cm;
-                                margin-left: 1cm;
-                            }
-                            .company-info-block {
+                            .print-header {
                                 text-align: center;
-                                margin-top: -0.5cm;
+                                font-weight: bold;
+                                font-size: 14pt;
+                                margin-bottom: 20px;
                             }
                             .company-info {
                                 text-align: center;
                                 line-height: 1.2;
-                                margin: 0;
-                            }
-                            .branch-info {
-                                margin-bottom: 0.5cm;
-                            }
-                            .print-title {
-                                text-align: center;
-                                font-weight: bold;
-                                font-size: 14pt;
-                                margin-bottom: 1cm;
+                                margin-bottom: 20px;
                             }
                             .print-info {
                                 display: flex;
@@ -1307,6 +1332,40 @@
                             }
                             .print-signatures div {
                                 flex-basis: 45%;
+                            }
+                            
+                            /* New print-specific styles for logo and signatures */
+                            .print-header-container {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                position: relative;
+                            }
+                            .print-logo {
+                                position: absolute;
+                                left: 0;
+                                top: -1cm;
+                                width: 1.5cm;
+                                height: 1.5cm;
+                                margin-left: 1cm;
+                            }
+                            .company-info-block {
+                                text-align: center;
+                                margin-top: -0.5cm;
+                            }
+                            .company-info {
+                                text-align: center;
+                                line-height: 1.2;
+                                margin: 0;
+                            }
+                            .branch-info {
+                                margin-bottom: 0.5cm;
+                            }
+                            .print-title {
+                                text-align: center;
+                                font-weight: bold;
+                                font-size: 14pt;
+                                margin-bottom: 1cm;
                             }
                             
                             /* Định dạng chữ nghiêng cho cột TT */
@@ -1464,6 +1523,7 @@
             
             createWeighingTable(slipData.data);
             updateCalculations();
+            window.scrollTo(0, 0); // Tự động cuộn về đầu trang
         }
     </script>
 </body>
