@@ -103,17 +103,17 @@
             padding: 10px 15px;
             font-size: 16px;
         }
-
-        button.export-slips-data-btn {
-            background-color: #007bff;
-            padding: 10px 15px;
-            font-size: 16px;
-        }
         
         button.print-slip-btn {
             background-color: #2ecc71;
             padding: 5px 10px;
             font-size: 14px;
+        }
+        
+        button.export-slips-data-btn {
+            background-color: #007bff;
+            padding: 10px 15px;
+            font-size: 16px;
         }
 
         button.delete-all-btn {
@@ -272,14 +272,22 @@
             font-weight: bold;
         }
         
-        #weighingTable th:nth-child(1),
-        #weighingTable th:nth-child(2),
-        #weighingTable td:nth-child(1),
-        #weighingTable td:nth-child(2) {
-            width: 150px; 
-            white-space: nowrap; 
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Cập nhật CSS cho bảng cân */
+        #weighingTable th, #weighingTable td {
+            text-align: center;
+        }
+        
+        #weighingTable th:nth-child(1), #weighingTable td:nth-child(1) {
+            width: 60px; /* Số thứ tự */
+        }
+        #weighingTable th:nth-child(2), #weighingTable td:nth-child(2) {
+            width: 120px; /* Khối lượng vỏ */
+        }
+        #weighingTable th:nth-child(3), #weighingTable td:nth-child(3) {
+            width: 120px; /* Khối lượng cân */
+        }
+        #weighingTable th:nth-child(4), #weighingTable td:nth-child(4) {
+            width: 100px; /* Gas thừa */
         }
 
 
@@ -570,6 +578,7 @@
                         <table id="weighingTable">
                             <thead>
                                 <tr>
+                                    <th>Số thứ tự</th>
                                     <th>Khối lượng vỏ</th>
                                     <th>Khối lượng cân</th>
                                     <th>Gas thừa</th>
@@ -709,6 +718,7 @@
                 const col2Value = dataRows[i] ? dataRows[i].col2 || '' : '';
                 const result = dataRows[i] ? (parseFloat(dataRows[i].col2) || 0) - (parseFloat(dataRows[i].col1) || 0) : 0;
                 row.innerHTML = `
+                    <td>${i + 1}</td>
                     <td><input type="number" class="weighing-input col1" data-row="${i}" value="${col1Value}"></td>
                     <td><input type="number" class="weighing-input col2" data-row="${i}" value="${col2Value}"></td>
                     <td><span class="result">${result.toFixed(2)}</span></td>
