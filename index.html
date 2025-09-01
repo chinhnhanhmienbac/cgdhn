@@ -477,6 +477,44 @@
             #weighingTable td {
                 padding: 8px;
             }
+            
+            /* CSS mới cho bảng khách hàng */
+            #customerTable thead {
+                display: none; /* Ẩn header của bảng trên mobile */
+            }
+
+            #customerTable tr {
+                display: block;
+                border: 1px solid #ddd;
+                margin-bottom: 15px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            #customerTable td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: right;
+                padding: 10px;
+                border: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            #customerTable td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                text-align: left;
+                flex-basis: 50%;
+            }
+            
+            #customerTable td:last-child {
+                border-bottom: none;
+            }
+
+            .action-buttons {
+                justify-content: flex-end;
+            }
         }
         
     </style>
@@ -719,8 +757,8 @@
                 const result = dataRows[i] ? (parseFloat(dataRows[i].col2) || 0) - (parseFloat(dataRows[i].col1) || 0) : 0;
                 row.innerHTML = `
                     <td>${i + 1}</td>
-                    <td><input type="number" class="weighing-input col1" data-row="${i}" value="${col1Value}"></td>
-                    <td><input type="number" class="weighing-input col2" data-row="${i}" value="${col2Value}"></td>
+                    <td><input type="number" class="weighing-input col1" data-row="${i}" value="${col1Value}" inputmode="numeric"></td>
+                    <td><input type="number" class="weighing-input col2" data-row="${i}" value="${col2Value}" inputmode="numeric"></td>
                     <td><span class="result">${result.toFixed(2)}</span></td>
                 `;
             }
@@ -928,28 +966,22 @@
                     });
 
                     const row = customerTableBody.insertRow();
-                    row.insertCell(0).textContent = index++;
-                    row.insertCell(1).textContent = displayedId;
-                    row.insertCell(2).textContent = customer.name;
+                    row.innerHTML = `
+                        <td data-label="Thứ tự">${index++}</td>
+                        <td data-label="Mã số">${displayedId}</td>
+                        <td data-label="Tên khách hàng">${customer.name}</td>
+                        <td data-label="Thao tác" class="action-buttons">
+                            <button class="weighing-btn">Lập phiếu cân</button>
+                            <button class="delete-btn">Xoá</button>
+                        </td>
+                    `;
                     
-                    const actionsCell = row.insertCell(3);
-                    actionsCell.classList.add('action-buttons');
-                    
-                    const weighingBtn = document.createElement('button');
-                    weighingBtn.textContent = 'Lập phiếu cân';
-                    weighingBtn.className = 'weighing-btn';
-                    weighingBtn.addEventListener('click', () => {
+                    row.querySelector('.weighing-btn').addEventListener('click', () => {
                         openWeighingSlip(customer.name);
                     });
-                    actionsCell.appendChild(weighingBtn);
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Xoá';
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.addEventListener('click', () => {
+                    row.querySelector('.delete-btn').addEventListener('click', () => {
                         deleteCustomer(key);
                     });
-                    actionsCell.appendChild(deleteBtn);
                 }
             }
         });
