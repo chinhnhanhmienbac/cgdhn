@@ -270,17 +270,11 @@
             font-weight: bold;
         }
         
-        #weighingTable th:first-child,
-        #weighingTable td:first-child {
-            width: 35px;
-            text-align: center;
-        }
-
         #weighingTable th:nth-child(2),
         #weighingTable th:nth-child(3),
         #weighingTable td:nth-child(2),
         #weighingTable td:nth-child(3) {
-            width: 70px; 
+            width: 150px; 
             white-space: nowrap; 
             overflow: hidden;
             text-overflow: ellipsis;
@@ -482,11 +476,23 @@
                 padding: 8px;
                 font-size: 14px;
             }
+            #weighingTable th:first-child,
+            #weighingTable td:first-child {
+                width: 35px;
+                text-align: center;
+            }
             #weighingTable th:nth-child(2),
             #weighingTable th:nth-child(3),
             #weighingTable td:nth-child(2),
             #weighingTable td:nth-child(3) {
-                width: 30px; /* Đã giảm độ rộng xuống còn 1/2 */
+                width: 60px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #weighingTable th:nth-child(4),
+            #weighingTable td:nth-child(4) {
+                width: 100px;
             }
         }
         
@@ -593,8 +599,8 @@
                                 <thead>
                                     <tr>
                                         <th>STT</th>
-                                        <th>Khối lượng vỏ</th>
-                                        <th>Khối lượng cân</th>
+                                        <th>K/L vỏ</th>
+                                        <th>K/L cân</th>
                                         <th>Gas thừa</th>
                                     </tr>
                                 </thead>
@@ -1344,7 +1350,7 @@
                             .print-logo {
                                 position: absolute;
                                 left: 0;
-                                top: -1cm;
+                                top: -1cm; /* Nâng logo lên một hàng chữ */
                                 width: 1.5cm;
                                 height: 1.5cm;
                                 margin-left: 1cm;
