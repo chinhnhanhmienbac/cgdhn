@@ -699,17 +699,40 @@
 
         // Hàm kiểm tra và giới hạn nhập liệu
         function enforceNumberInput(input) {
+            const isMobile = /iPhone|Android/i.test(navigator.userAgent);
             let value = input.value;
-            // Biểu thức chính quy: Số nguyên tối đa 2 chữ số, phần thập phân tối đa 1 chữ số
-            const regex = /^\d{0,2}(\.\d{0,1})?$/;
             
-            if (value.startsWith('.')) {
-                value = '0' + value;
+            // Bước 1: Xử lý yêu cầu tự động thêm dấu thập phân trên mobile
+            if (isMobile) {
+                // Lấy chuỗi chỉ chứa các chữ số
+                const pureDigits = value.replace(/[^0-9]/g, '');
+                
+                // Nếu nhập 3 chữ số và chưa có dấu chấm, thêm dấu chấm vào giữa
+                if (pureDigits.length === 3 && !value.includes('.')) {
+                    value = pureDigits.slice(0, 2) + '.' + pureDigits.slice(2);
+                }
             }
-
-            if (!regex.test(value)) {
-                // Xóa ký tự cuối cùng nếu không hợp lệ
-                input.value = value.slice(0, -1);
+            
+            // Bước 2: Áp dụng quy tắc kiểm tra chung cho mọi thiết bị
+            let cleanedValue = value.replace(/[^0-9.]/g, ''); // Loại bỏ ký tự không phải số hoặc dấu chấm
+            const parts = cleanedValue.split('.');
+            
+            // Giới hạn phần số nguyên không quá 2 chữ số
+            if (parts[0].length > 2) {
+                parts[0] = parts[0].slice(0, 2);
+            }
+            
+            // Giới hạn phần thập phân không quá 1 chữ số
+            if (parts.length > 1 && parts[1].length > 1) {
+                parts[1] = parts[1].slice(0, 1);
+            }
+            
+            // Ghép lại chuỗi đã được làm sạch và giới hạn
+            let finalValue = parts.join('.');
+            
+            // Nếu giá trị đã thay đổi, cập nhật lại input
+            if (finalValue !== input.value) {
+                input.value = finalValue;
             }
         }
 
